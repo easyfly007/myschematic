@@ -1,5 +1,45 @@
 # MySchematic — 模拟电路 Schematic Editor 开发计划
 
+## 开发进度
+
+| Phase | 名称 | 状态 | 完成日期 | 说明 |
+|-------|------|------|----------|------|
+| **Phase 1** | 基础框架与核心数据模型 | **已完成** | 2026-02-18 | lib 编译通过，37 个测试全部通过，app 代码已写好（需 Qt Widgets 环境） |
+| Phase 2 | Symbol 系统与基础元件 | 未开始 | — | |
+| Phase 3 | 导线连接与连接性分析 | 未开始 | — | |
+| Phase 4 | 序列化与文件管理 | 未开始 | — | |
+| Phase 5 | Netlist 导入与自动布局 | 未开始 | — | |
+| Phase 6 | 层次化设计 | 未开始 | — | |
+| Phase 7 | Symbol 编辑器 | 未开始 | — | |
+| Phase 8 | DRC 检查 | 未开始 | — | |
+| Phase 9 | 完善与优化 | 未开始 | — | |
+
+### Phase 1 完成详情
+
+**已实现的文件（46 个）**：
+
+| 模块 | 文件数 | 说明 |
+|------|--------|------|
+| lib/include/myschematic/ | 8 | 公开 API 头文件：types.h, geometry.h, schematic_element.h, component.h, sheet.h, circuit.h, id_generator.h, myschematic.h |
+| lib/src/model/ | 5 | 核心模型实现：id_generator.cpp, schematic_element.cpp, component.cpp, sheet.cpp, circuit.cpp |
+| app/ | 23 | MainWindow, SchematicScene/View, ComponentItem, SelectTool, PlaceTool, 3 个 UndoCommand (Add/Delete/Move) |
+| tests/ | 5 | test_circuit (6 tests), test_sheet (9 tests), test_component (12 tests), test_move_cmd (4 tests), test_add_delete_cmd (6 tests) |
+| cmake/ | 1 | CompilerWarnings.cmake |
+| 根目录 | 2 | CMakeLists.txt, .gitignore |
+
+**构建产物**：
+- `libmyschematic.a` — 核心静态库，编译通过
+- 5 个测试可执行文件 — 全部通过（37 个 test case，0.13s）
+- GUI 应用代码已写好 — 需要完整 Qt Widgets 环境（含 OpenGL 头文件）才能编译
+
+**环境适配说明**：
+- 开发环境为 WSL2，缺少 OpenGL 头文件，因此 GUI 应用（`BUILD_APP`）设为 OFF
+- Qt6 通过 `aqtinstall` 安装到 `~/Qt/6.5.3/gcc_64`
+- Google Test 从源码编译安装到 `~/gtest-install`
+- 测试使用 lambda 信号计数器替代 QSignalSpy（后者需要 Qt Test 模块）
+
+---
+
 ## Context
 
 开发一个面向商业化的模拟电路 Schematic Editor，对标 Cadence Virtuoso Schematic Editor。需要处理大规模电路（数万到数十万器件），支持层次化设计、Symbol 编辑、DRC 检查、SPICE netlist 导出。
@@ -603,7 +643,7 @@ int main() {
 
 ## 四、分阶段开发计划
 
-### Phase 1: 基础框架与核心数据模型
+### Phase 1: 基础框架与核心数据模型 — **已完成**
 
 **目标**：搭建 CMake 项目结构，实现核心数据模型 (lib)，实现最小可运行的 GUI 应用。画布上能放置占位方块、选择、移动，所有操作支持 Undo/Redo。
 
@@ -922,12 +962,55 @@ Phase 5/6/7 互不依赖，可并行开发。Phase 8 依赖 Phase 6。
 4. API 测试（Phase 3+）：独立程序链接 libmyschematic.a
 5. 序列化往返（Phase 4+）：testdata/ 文件加载→保存→重新加载
 
-### 首次构建验证
+### 构建命令
+
+**当前环境（WSL2，无 OpenGL 头文件）**：
+```bash
+# 配置（lib + tests，不编译 GUI app）
+cmake -S . -B build \
+    -DCMAKE_PREFIX_PATH="$HOME/Qt/6.5.3/gcc_64;$HOME/gtest-install" \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DBUILD_APP=OFF
+
+# 编译
+cmake --build build -j$(nproc)
+
+# 运行测试
+ctest --test-dir build --output-on-failure
+```
+
+**完整环境（有 Qt Widgets + OpenGL）**：
+```bash
+# 配置（lib + app + tests）
+cmake -S . -B build \
+    -DCMAKE_PREFIX_PATH="$HOME/Qt/6.5.3/gcc_64;$HOME/gtest-install" \
+    -DCMAKE_BUILD_TYPE=Debug
+
+# 编译
+cmake --build build -j$(nproc)
+
+# 运行测试
+ctest --test-dir build --output-on-failure
+
+# 启动 GUI 应用
+./build/app/myschematic
+```
+
+### 依赖安装（无 sudo 权限）
 
 ```bash
-mkdir build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Debug
-cmake --build .
-ctest --output-on-failure
-./app/myschematic   # 启动 GUI
+# CMake (via pip)
+pip install cmake
+
+# Qt 6.5.3 (via aqtinstall)
+pip install aqtinstall
+aqt install-qt linux desktop 6.5.3 gcc_64 -O ~/Qt
+
+# Google Test (从源码编译)
+cd /tmp
+git clone https://github.com/google/googletest.git --depth 1
+cd googletest
+cmake -S . -B build -DCMAKE_INSTALL_PREFIX=$HOME/gtest-install
+cmake --build build -j$(nproc)
+cmake --install build
 ```

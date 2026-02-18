@@ -1,6 +1,35 @@
 # MySchematic 技术决策记录
 
-本文档记录了 MySchematic 项目规划过程中的所有关键技术讨论和决策。
+本文档记录了 MySchematic 项目规划和实现过程中的所有关键技术讨论和决策。
+
+---
+
+## 0. Phase 1 实现中的技术决策
+
+### 0.1 AUTOMOC 与头文件列表
+
+**问题**：CMake AUTOMOC 无法找到 `lib/include/myschematic/` 目录下带有 `Q_OBJECT` 宏的头文件，导致 MOC 不生成元对象代码，链接时出现 `undefined reference to vtable` 错误。
+
+**解决方案**：在 `lib/CMakeLists.txt` 的 `add_library()` 中，将所有头文件（`${LIB_HEADERS}`）显式加入目标源文件列表。AUTOMOC 通过扫描目标的源文件来查找 `Q_OBJECT` 宏，因此必须将含有 Q_OBJECT 的头文件纳入目标。
+
+### 0.2 Qt Widgets 可选编译
+
+**问题**：WSL2 环境缺少 OpenGL 头文件（`WrapOpenGL`），导致 `Qt6::Gui` → `Qt6::Widgets` 无法找到。
+
+**解决方案**：将 `BUILD_APP` 设为 CMake 选项（默认 ON），在缺少 Qt Widgets 的环境中可设为 OFF。核心库 `libmyschematic` 仅依赖 `Qt6::Core`，可在任何有 Qt Core 的环境中编译。
+
+### 0.3 测试中用 lambda 替代 QSignalSpy
+
+**问题**：`QSignalSpy` 位于 `Qt6::Test` 模块，该模块需要额外安装且可能依赖 Qt GUI。
+
+**解决方案**：使用 lambda + 计数器模式替代：
+```cpp
+int count = 0;
+QObject::connect(obj, &Class::signal, [&count]() { ++count; });
+// ... trigger signal ...
+EXPECT_EQ(count, 1);
+```
+这种方式仅依赖 `Qt6::Core`，与 Google Test 完全兼容。
 
 ---
 

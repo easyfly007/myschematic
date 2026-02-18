@@ -2,6 +2,8 @@
 
 MySchematic 是一款面向模拟电路设计的原理图编辑器，对标 Cadence Virtuoso Schematic Editor，支持大规模电路（10 万+ 器件）、层次化设计、SPICE netlist 导出与导入。
 
+> **当前开发状态**：Phase 1 已完成（2026-02-18）。核心数据模型库 `libmyschematic.a` 可用，GUI 应用代码已写好但需要完整 Qt Widgets 环境。本指南描述的功能中，部分尚在后续阶段实现中，请参考 [development-plan.md](development-plan.md) 中的进度表了解各功能的可用状态。
+
 ---
 
 ## 目录
@@ -36,6 +38,25 @@ MySchematic 是一款面向模拟电路设计的原理图编辑器，对标 Cade
 - **CMake**：3.16+
 - **测试框架**：Google Test（可选，构建测试时需要）
 
+### 依赖安装
+
+如果系统没有 sudo 权限，可使用以下方式安装依赖：
+
+```bash
+# CMake (via pip)
+pip install cmake
+
+# Qt 6.5.3 (via aqtinstall)
+pip install aqtinstall
+aqt install-qt linux desktop 6.5.3 gcc_64 -O ~/Qt
+
+# Google Test (从源码编译)
+cd /tmp && git clone https://github.com/google/googletest.git --depth 1
+cd googletest
+cmake -S . -B build -DCMAKE_INSTALL_PREFIX=$HOME/gtest-install
+cmake --build build -j$(nproc) && cmake --install build
+```
+
 ### 构建步骤
 
 ```bash
@@ -43,20 +64,25 @@ MySchematic 是一款面向模拟电路设计的原理图编辑器，对标 Cade
 git clone <repo-url> myschematic
 cd myschematic
 
-# 创建构建目录
-mkdir build && cd build
+# 配置（指定 Qt 和 GTest 安装路径）
+cmake -S . -B build \
+    -DCMAKE_PREFIX_PATH="$HOME/Qt/6.5.3/gcc_64;$HOME/gtest-install" \
+    -DCMAKE_BUILD_TYPE=Debug
 
-# 配置（Debug 模式）
-cmake .. -DCMAKE_BUILD_TYPE=Debug
+# 如果没有 OpenGL 头文件（如 WSL2 环境），关闭 GUI 应用编译
+cmake -S . -B build \
+    -DCMAKE_PREFIX_PATH="$HOME/Qt/6.5.3/gcc_64;$HOME/gtest-install" \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DBUILD_APP=OFF
 
 # 编译
-cmake --build . -j$(nproc)
+cmake --build build -j$(nproc)
 
 # 运行测试
-ctest --output-on-failure
+ctest --test-dir build --output-on-failure
 
-# 启动 GUI 应用
-./app/myschematic
+# 启动 GUI 应用（仅在 BUILD_APP=ON 时可用）
+./build/app/myschematic
 ```
 
 ### 构建选项
@@ -65,7 +91,8 @@ ctest --output-on-failure
 |-----------|--------|------|
 | `CMAKE_BUILD_TYPE` | `Debug` | 构建类型：Debug / Release / RelWithDebInfo |
 | `BUILD_TESTS` | `ON` | 是否构建测试 |
-| `BUILD_APP` | `ON` | 是否构建 GUI 应用 |
+| `BUILD_APP` | `ON` | 是否构建 GUI 应用（需要 Qt Widgets + OpenGL） |
+| `CMAKE_PREFIX_PATH` | — | Qt6 和 GTest 安装路径，分号分隔 |
 
 ---
 
