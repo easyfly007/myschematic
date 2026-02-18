@@ -58,14 +58,16 @@ TEST(AddDelete, DeleteMultiple) {
 
 TEST(AddDelete, SignalsOnAddDelete) {
     Sheet sheet("test");
-    QSignalSpy addSpy(&sheet, &Sheet::elementAdded);
-    QSignalSpy removeSpy(&sheet, &Sheet::elementRemoved);
+    int addCount = 0;
+    int removeCount = 0;
+    QObject::connect(&sheet, &Sheet::elementAdded, [&addCount](SchematicElement*) { ++addCount; });
+    QObject::connect(&sheet, &Sheet::elementRemoved, [&removeCount](const QString&) { ++removeCount; });
 
     auto* comp = sheet.addComponent(QPointF(0, 0));
-    EXPECT_EQ(addSpy.count(), 1);
+    EXPECT_EQ(addCount, 1);
 
     sheet.removeElement(comp->id());
-    EXPECT_EQ(removeSpy.count(), 1);
+    EXPECT_EQ(removeCount, 1);
 }
 
 TEST(AddDelete, ComponentProperties) {

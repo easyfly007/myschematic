@@ -2,7 +2,6 @@
 #include <myschematic/sheet.h>
 #include <myschematic/component.h>
 #include <QPointF>
-#include <QUndoStack>
 
 // Test move command logic at the model level (without GUI)
 // MoveElementCmd depends on SchematicScene which requires Qt Widgets.
@@ -49,7 +48,8 @@ TEST(MoveModel, SignalOnMove) {
     Sheet sheet("test");
     auto* comp = sheet.addComponent(QPointF(0, 0));
 
-    QSignalSpy spy(comp, &SchematicElement::changed);
+    int signalCount = 0;
+    QObject::connect(comp, &SchematicElement::changed, [&signalCount]() { ++signalCount; });
     comp->setPosition(QPointF(10, 20));
-    EXPECT_EQ(spy.count(), 1);
+    EXPECT_EQ(signalCount, 1);
 }

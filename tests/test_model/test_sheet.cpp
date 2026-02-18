@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <myschematic/sheet.h>
 #include <myschematic/component.h>
-#include <QSignalSpy>
 #include <QPointF>
 
 using namespace myschematic;
@@ -70,14 +69,16 @@ TEST(Sheet, ElementsAt) {
 
 TEST(Sheet, SignalEmission) {
     Sheet sheet("test");
-    QSignalSpy addSpy(&sheet, &Sheet::elementAdded);
-    QSignalSpy removeSpy(&sheet, &Sheet::elementRemoved);
+    int addCount = 0;
+    int removeCount = 0;
+    QObject::connect(&sheet, &Sheet::elementAdded, [&addCount](SchematicElement*) { ++addCount; });
+    QObject::connect(&sheet, &Sheet::elementRemoved, [&removeCount](const QString&) { ++removeCount; });
 
     Component* comp = sheet.addComponent(QPointF(0, 0));
-    EXPECT_EQ(addSpy.count(), 1);
+    EXPECT_EQ(addCount, 1);
 
     sheet.removeElement(comp->id());
-    EXPECT_EQ(removeSpy.count(), 1);
+    EXPECT_EQ(removeCount, 1);
 }
 
 TEST(Sheet, IdAndName) {

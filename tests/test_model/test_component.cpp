@@ -1,9 +1,7 @@
 #include <gtest/gtest.h>
 #include <myschematic/component.h>
-#include <QSignalSpy>
 #include <QPointF>
 #include <QRectF>
-#include <cmath>
 
 using namespace myschematic;
 
@@ -24,20 +22,21 @@ TEST(Component, SetPosition) {
 
 TEST(Component, PositionChangedSignal) {
     Component comp;
-    QSignalSpy spy(&comp, &Component::changed);
+    int signalCount = 0;
+    QObject::connect(&comp, &Component::changed, [&signalCount]() { ++signalCount; });
+
     comp.setPosition(QPointF(50, 50));
-    EXPECT_EQ(spy.count(), 1);
+    EXPECT_EQ(signalCount, 1);
 
     // Setting same position should not emit
     comp.setPosition(QPointF(50, 50));
-    EXPECT_EQ(spy.count(), 1);
+    EXPECT_EQ(signalCount, 1);
 }
 
 TEST(Component, BoundingRect) {
     Component comp;
     comp.setPosition(QPointF(100, 100));
     QRectF rect = comp.boundingRect();
-    // Default size 60x40, centered on position
     EXPECT_DOUBLE_EQ(rect.width(), 60.0);
     EXPECT_DOUBLE_EQ(rect.height(), 40.0);
     EXPECT_DOUBLE_EQ(rect.center().x(), 100.0);
@@ -49,7 +48,6 @@ TEST(Component, BoundingRectRotated90) {
     comp.setPosition(QPointF(100, 100));
     comp.setRotation(90);
     QRectF rect = comp.boundingRect();
-    // Width and height should be swapped
     EXPECT_DOUBLE_EQ(rect.width(), 40.0);
     EXPECT_DOUBLE_EQ(rect.height(), 60.0);
 }
@@ -59,7 +57,6 @@ TEST(Component, BoundingRectRotated180) {
     comp.setPosition(QPointF(100, 100));
     comp.setRotation(180);
     QRectF rect = comp.boundingRect();
-    // Same dimensions, not swapped for 180
     EXPECT_DOUBLE_EQ(rect.width(), 60.0);
     EXPECT_DOUBLE_EQ(rect.height(), 40.0);
 }
@@ -69,7 +66,6 @@ TEST(Component, BoundingRectRotated270) {
     comp.setPosition(QPointF(100, 100));
     comp.setRotation(270);
     QRectF rect = comp.boundingRect();
-    // Width and height should be swapped
     EXPECT_DOUBLE_EQ(rect.width(), 40.0);
     EXPECT_DOUBLE_EQ(rect.height(), 60.0);
 }
