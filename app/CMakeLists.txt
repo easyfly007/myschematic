@@ -4,6 +4,7 @@ set(APP_SOURCES
     view/schematic_scene.cpp
     view/schematic_view.cpp
     view/items/component_item.cpp
+    view/items/pin_item.cpp
     tools/tool.cpp
     tools/tool_manager.cpp
     tools/select_tool.cpp
@@ -11,6 +12,11 @@ set(APP_SOURCES
     commands/add_component_cmd.cpp
     commands/delete_element_cmd.cpp
     commands/move_element_cmd.cpp
+    commands/rotate_element_cmd.cpp
+    commands/mirror_element_cmd.cpp
+    commands/change_property_cmd.cpp
+    editors/property_editor.cpp
+    panels/component_palette.cpp
 )
 
 add_executable(myschematic_app ${APP_SOURCES})

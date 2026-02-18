@@ -14,3 +14,8 @@ add_myschematic_test(test_sheet test_model/test_sheet.cpp)
 add_myschematic_test(test_component test_model/test_component.cpp)
 add_myschematic_test(test_move_cmd test_commands/test_move_cmd.cpp)
 add_myschematic_test(test_add_delete_cmd test_commands/test_add_delete_cmd.cpp)
+
+add_myschematic_test(test_symbol_def test_symbol/test_symbol_def.cpp)
+add_myschematic_test(test_builtin_symbols test_symbol/test_builtin_symbols.cpp)
+add_myschematic_test(test_component_extended test_symbol/test_component_extended.cpp)
+add_myschematic_test(test_library test_symbol/test_library.cpp)

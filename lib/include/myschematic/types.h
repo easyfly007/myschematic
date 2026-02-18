@@ -19,4 +19,20 @@ enum class PortDirection {
     InOut
 };
 
+enum class PinDirection {
+    Left,
+    Right,
+    Up,
+    Down
+};
+
+enum class ElectricalType {
+    Input,
+    Output,
+    Passive,
+    Power,
+    Bidirectional,
+    NotConnected
+};
+
 } // namespace myschematic
