@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include <myschematic/component.h>
 #include <myschematic/builtin_symbols.h>
+#include <myschematic/symbol_def.h>
+#include <myschematic/symbol_pin.h>
 #include <myschematic/pin.h>
 #include <myschematic/property.h>
 

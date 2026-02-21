@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <myschematic/builtin_symbols.h>
 #include <myschematic/symbol_def.h>
+#include <myschematic/symbol_library.h>
 
 using namespace myschematic;
 

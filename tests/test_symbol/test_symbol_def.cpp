@@ -50,8 +50,8 @@ TEST(SymbolDef, PinByName) {
 TEST(SymbolDef, AddGraphics) {
     SymbolDef def("test");
 
-    auto line = std::make_shared<GraphicLine>(QPointF(0, 0), QPointF(10, 10));
-    auto rect = std::make_shared<GraphicRect>(QRectF(-5, -5, 10, 10));
+    auto line = std::make_shared<GraphicLine>(0.0, 0.0, 10.0, 10.0);
+    auto rect = std::make_shared<GraphicRect>(-5.0, -5.0, 10.0, 10.0);
 
     def.addGraphic(line);
     def.addGraphic(rect);
@@ -61,7 +61,7 @@ TEST(SymbolDef, AddGraphics) {
 
 TEST(SymbolDef, BoundingRect) {
     SymbolDef def("test");
-    auto rect = std::make_shared<GraphicRect>(QRectF(-10, -10, 20, 20));
+    auto rect = std::make_shared<GraphicRect>(-10.0, -10.0, 20.0, 20.0);
     def.addGraphic(rect);
 
     QRectF br = def.boundingRect();
@@ -75,8 +75,8 @@ TEST(SymbolDef, BoundingRectUnion) {
     SymbolDef def("test");
 
     // Two non-overlapping rects
-    auto rect1 = std::make_shared<GraphicRect>(QRectF(0, 0, 10, 10));
-    auto rect2 = std::make_shared<GraphicRect>(QRectF(20, 20, 10, 10));
+    auto rect1 = std::make_shared<GraphicRect>(0.0, 0.0, 10.0, 10.0);
+    auto rect2 = std::make_shared<GraphicRect>(20.0, 20.0, 10.0, 10.0);
 
     def.addGraphic(rect1);
     def.addGraphic(rect2);

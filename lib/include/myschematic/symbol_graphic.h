@@ -19,8 +19,8 @@ public:
 
 class GraphicLine : public SymbolGraphic {
 public:
-    GraphicLine(double x1, double y1, double x2, double y2)
-        : x1(x1), y1(y1), x2(x2), y2(y2) {}
+    GraphicLine(double x1_, double y1_, double x2_, double y2_)
+        : x1(x1_), y1(y1_), x2(x2_), y2(y2_) {}
 
     Type graphicType() const override { return Type::Line; }
 
@@ -37,8 +37,8 @@ public:
 
 class GraphicRect : public SymbolGraphic {
 public:
-    GraphicRect(double x, double y, double width, double height, bool filled = false)
-        : x(x), y(y), width(width), height(height), filled(filled) {}
+    GraphicRect(double x_, double y_, double width_, double height_, bool filled_ = false)
+        : x(x_), y(y_), width(width_), height(height_), filled(filled_) {}
 
     Type graphicType() const override { return Type::Rect; }
 
@@ -52,8 +52,8 @@ public:
 
 class GraphicCircle : public SymbolGraphic {
 public:
-    GraphicCircle(double cx, double cy, double radius, bool filled = false)
-        : cx(cx), cy(cy), radius(radius), filled(filled) {}
+    GraphicCircle(double cx_, double cy_, double radius_, bool filled_ = false)
+        : cx(cx_), cy(cy_), radius(radius_), filled(filled_) {}
 
     Type graphicType() const override { return Type::Circle; }
 
@@ -67,8 +67,8 @@ public:
 
 class GraphicArc : public SymbolGraphic {
 public:
-    GraphicArc(double cx, double cy, double radius, double startAngle, double spanAngle)
-        : cx(cx), cy(cy), radius(radius), startAngle(startAngle), spanAngle(spanAngle) {}
+    GraphicArc(double cx_, double cy_, double radius_, double startAngle_, double spanAngle_)
+        : cx(cx_), cy(cy_), radius(radius_), startAngle(startAngle_), spanAngle(spanAngle_) {}
 
     Type graphicType() const override { return Type::Arc; }
 
@@ -82,8 +82,8 @@ public:
 
 class GraphicPolyline : public SymbolGraphic {
 public:
-    GraphicPolyline(const QList<QPointF>& points, bool filled = false)
-        : points(points), filled(filled) {}
+    GraphicPolyline(const QList<QPointF>& points_, bool filled_ = false)
+        : points(points_), filled(filled_) {}
 
     Type graphicType() const override { return Type::Polyline; }
 
@@ -109,14 +109,14 @@ public:
 
 class GraphicText : public SymbolGraphic {
 public:
-    GraphicText(double x, double y, const QString& text, double fontSize = 10.0)
-        : x(x), y(y), fontSize(fontSize), text(text) {}
+    GraphicText(double x_, double y_, const QString& text_, double fontSize_ = 10.0)
+        : x(x_), y(y_), fontSize(fontSize_), text(text_) {}
 
     Type graphicType() const override { return Type::Text; }
 
     QRectF boundingRect() const override {
         // Approximate: each character ~0.6 * fontSize wide, height ~fontSize
-        double w = text.length() * fontSize * 0.6;
+        double w = static_cast<double>(text.length()) * fontSize * 0.6;
         double h = fontSize;
         return QRectF(x, y - h, w, h);
     }
